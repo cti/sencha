@@ -1,0 +1,23 @@
+{
+    "name": "cti/sencha",
+    "description": "Sencha helper",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Dmitry.Krokhin",
+            "email": "nekufa@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Cti\\Sencha\\" : "src/php/"
+        }
+    },
+    "require": {
+        "cti/storage": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "4.0.*",
+        "satooshi/php-coveralls": "0.7.*@dev"
+    }
+}
