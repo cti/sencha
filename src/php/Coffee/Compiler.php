@@ -45,7 +45,8 @@ class Compiler
         foreach(array_reverse($dependencies) as $coffee) {
 
             $local = $this->source->getLocalPath($coffee);
-            $local = dirname($local) . DIRECTORY_SEPARATOR . basename($local, 'coffee') .'js';
+            $local = dirname($local) . D
+            IRECTORY_SEPARATOR . basename($local, 'coffee') .'js';
             $javascript = $this->project->getPath(sprintf('build js %s', $local));
 
             if(!file_exists($javascript) || filemtime($coffee) >= filemtime($javascript)) {

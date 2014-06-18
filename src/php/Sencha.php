@@ -6,7 +6,11 @@ use Build\Application;
 use Cti\Core\Application\Bootloader;
 use Cti\Core\Application\Warmer;
 use Cti\Core\Module\Project;
+use Symfony\Component\Filesystem\Filesystem;
 
+/**
+ * @dependsOn Cti\Storage\Storage
+ */
 class Sencha extends Project implements Bootloader, Warmer
 {
     /**
@@ -40,6 +44,14 @@ class Sencha extends Project implements Bootloader, Warmer
         $source->add($this->project->getPath('resources coffee'));
     }
 
+    /**
+     * @return array
+     */
+    protected function getAvailableNamespaces()
+    {
+        return array('Coffee', 'Command', 'Generator');
+    }
+
     public function boot(Application $application)
     {
         $application->getFenom()->addSource($this->getPath('resources fenom'));
@@ -47,7 +59,25 @@ class Sencha extends Project implements Bootloader, Warmer
 
     public function warm(Application $application)
     {
+        parent::warm($application);
+        
+        $fs = new Filesystem();
+        $schema = $application->getStorage()->getSchema();
 
+        foreach($schema->getModels() as $model) {
+
+            $coffeeGenerator = $this->application->getManager()->create('Cti\Sencha\Generator\Model', array(
+                'model' => $model
+            ));
+
+            $generatedSource = $coffeeGenerator->getGeneratedCode();
+            $path = $this->application->getProject()->getPath('build coffee Model Generated ' . $model->getClassName() . '.coffee');
+            $fs->dumpFile($path, $generatedSource);
+
+            $modelSource = $coffeeGenerator->getModelCode();
+            $path = $this->application->getProject()->getPath('build coffee Model ' . $model->getClassName() . '.coffee');
+            $fs->dumpFile($path, $modelSource);
+        }
     }
 
     public function createLayout()
