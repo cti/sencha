@@ -24,7 +24,7 @@ class Layout
 
 	function display()
 	{
-        $this->application->getSencha()->getCoffeeCompiler()->build($this->script);
+        $this->application->getSencha()->getCoffeeCompiler()->validate($this->script);
         $this->application->getFenom()->display($this->template, array(
         	'base' => $this->base,
         	'direct' => $this->direct,

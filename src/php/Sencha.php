@@ -7,6 +7,7 @@ use Cti\Core\Application\Bootloader;
 use Cti\Core\Application\Warmer;
 use Cti\Core\Module\Project;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Finder\Finder;
 
 /**
  * @dependsOn Cti\Storage\Storage
@@ -30,7 +31,7 @@ class Sencha extends Project implements Bootloader, Warmer
      * @var Project
      */
     protected $project;
-    
+
     public function init(\Cti\Core\Module\Cache $cache)
     {
         parent::init($cache);
@@ -60,7 +61,7 @@ class Sencha extends Project implements Bootloader, Warmer
     public function warm(Application $application)
     {
         parent::warm($application);
-        
+
         $fs = new Filesystem();
         $schema = $application->getStorage()->getSchema();
 
@@ -77,6 +78,17 @@ class Sencha extends Project implements Bootloader, Warmer
             $modelSource = $coffeeGenerator->getModelCode();
             $path = $this->application->getProject()->getPath('build coffee Model ' . $model->getClassName() . '.coffee');
             $fs->dumpFile($path, $modelSource);
+        }
+
+        $finder = new Finder();
+
+        $source = $application->getProject()->getPath('resources coffee');
+        if(is_dir($source)) {
+            $finder->files()->name("*.coffee")->in($source);
+            foreach($finder as $file) {
+                $script = substr($file, strlen($source)+1, -7);
+                $this->getCoffeeCompiler()->build($script);
+            }
         }
     }
 
