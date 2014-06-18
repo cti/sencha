@@ -1,6 +1,6 @@
 Ext.define 'Cti',
   statics: 
-    bootstrap: (defaultClass) ->
-      Cti.application = Ext.create 'Cti.Application', defaultClass: defaultClass
+    start: (config) ->
+      Cti.application = Ext.create 'Cti.Application', config
     launch: (cls, cfg) ->
       Cti.application.launch cls, cfg

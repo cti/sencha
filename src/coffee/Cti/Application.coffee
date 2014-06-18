@@ -4,19 +4,23 @@ Ext.define 'Cti.Application',
   dynamic: {}
   tokenClasees: {}
 
+  viewportClass: 'Cti.Viewport'
+  defaultClass: 'Cti.Welcome'
+
   constructor: (config) ->
 
     for name, cls of Ext.ClassManager.classes
       if cls.prototype and cls.prototype.token
         @registerToken cls.prototype.token, name
 
+    Ext.apply @, config
     Ext.History.on 'change', (url) => @processToken url
-    @viewport = Ext.create 'Cti.Viewport'
+    @viewport = Ext.create @viewportClass
 
     if Ext.History.currentToken
       @processToken Ext.History.currentToken
-    else if config.defaultClass
-      @launch config.defaultClass
+    else if @defaultClass
+      @launch @defaultClass
 
     return @
 
@@ -40,7 +44,7 @@ Ext.define 'Cti.Application',
     else
       chain = token.split '/'
       for cls, dynamic of @dynamic
-        
+
         found = true
         for v,k in dynamic.basis
           found = false if v and chain[k] != v 

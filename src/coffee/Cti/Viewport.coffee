@@ -4,6 +4,6 @@ Ext.define 'Cti.Viewport'
   layout: 'fit'
 
   setContent: (content) ->
-    @removeAll()
-    @add content
+    @items.removeAll()
+    @items.add content
     @doLayout()

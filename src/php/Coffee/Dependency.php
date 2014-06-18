@@ -46,6 +46,8 @@ class Dependency
             "/new\s+([A-Za-z0-9.]+)/",
             "/extends\s+([A-Za-z0-9.]+)/",
             "/extend\s*:\s*['\"]([a-zA-Z0-9._]+)['\"]/",
+            "/defaultClass\s*:\s*['\"]([a-zA-Z0-9._]+)['\"]/",
+            "/viewportClass\s*:\s*['\"]([a-zA-Z0-9._]+)['\"]/",
             "/Ext.create ['\"]([a-zA-Z0-9.]+)['\"]/",
             "/Cti.launch ['\"]([a-zA-Z0-9.]+)['\"]/",
             "/Cti.bootstrap ['\"]([a-zA-Z0-9.]+)['\"]/",
