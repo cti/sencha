@@ -1,9 +1,8 @@
-Ext.define 'Cti.Viewport'
+Ext.define 'Cti.Viewport',
 
   extend: 'Ext.Viewport'
   layout: 'fit'
 
-  setContent: (content) ->
-    @items.removeAll()
-    @items.add content
-    @doLayout()
+  initComponent: ->
+    @items = [@panel = Ext.create 'Cti.Panel']
+    @callParent arguments

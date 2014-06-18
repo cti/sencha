@@ -16,6 +16,7 @@ Ext.define 'Cti.Application',
     Ext.apply @, config
     Ext.History.on 'change', (url) => @processToken url
     @viewport = Ext.create @viewportClass
+    @panel = @viewport.panel
 
     if Ext.History.currentToken
       @processToken Ext.History.currentToken
@@ -39,7 +40,7 @@ Ext.define 'Cti.Application',
 
   processToken: (token) ->
     if @tokenClasees[token]
-      @viewport.setContent Ext.create @tokenClasees[token]
+      @panel.setContent Ext.create @tokenClasees[token]
 
     else
       chain = token.split '/'
@@ -53,7 +54,7 @@ Ext.define 'Cti.Application',
           cfg = {}
           for v,k in dynamic.params
             cfg[v] = chain[k] if k
-          return @viewport.setContent Ext.create cls, cfg
+          return @panel.setContent Ext.create cls, cfg
 
       alert 'No token processing: ' + token
 
@@ -66,4 +67,4 @@ Ext.define 'Cti.Application',
       chain[k] = v for v, k in @dynamic[cls].basis
       Ext.History.add chain.join '/'
     else
-      @viewport.setContent Ext.create cls, cfg
+      @panel.setContent Ext.create cls, cfg
