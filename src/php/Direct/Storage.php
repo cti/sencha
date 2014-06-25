@@ -2,13 +2,20 @@
 
 namespace Cti\Sencha\Direct;
 
+use Storage\Master;
 
 class Storage
 {
-    function getList($model)
+    function getList($model, Master $master)
     {
-        echo 'zzz';
+        $data = array();
 
- 
+        foreach($master->getRepository($model)->findAll() as $entity) {
+            $data[] = $entity->asArray();
+        }
+
+        return array(
+            'data' => $data
+        );
     }
 }
