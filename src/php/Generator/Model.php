@@ -21,12 +21,20 @@ class Model extends Generator
         }
         $fields = json_encode($fields);
 
+        $pk_getter = array();
+        foreach($pk as $key) {
+          $pk_getter[] = $key . ": @get('" . $key . "')";
+        }
+        $pk_getter = implode(', ', $pk_getter);
+
         return <<<COFFEE
 Ext.define 'Generated.Model.$class',
 
   extend: 'Ext.data.Model'
   name: $name
   idProperty: $idProperty
+  getPk: -> $pk_getter
+
   fields: $fields
 COFFEE;
 
