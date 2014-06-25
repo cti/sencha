@@ -2,7 +2,7 @@ Ext.define 'Cti.Application',
 
   classTokens: {}
   dynamic: {}
-  tokenClasees: {}
+  tokenClasses: {}
 
   viewportClass: 'Cti.Viewport'
   defaultClass: 'Cti.Welcome'
@@ -35,12 +35,12 @@ Ext.define 'Cti.Application',
         else
           @dynamic[cls].basis[k] = v
     else
-      @tokenClasees[token] = cls
+      @tokenClasses[token] = cls
       @classTokens[cls] = token
 
   processToken: (token) ->
-    if @tokenClasees[token]
-      @panel.setContent Ext.create @tokenClasees[token]
+    if @tokenClasses[token]
+      @panel.setContent Ext.create @tokenClasses[token]
 
     else
       chain = token.split '/'
