@@ -6,6 +6,7 @@ use Build\Application;
 use Cti\Core\Application\Bootloader;
 use Cti\Core\Application\Warmer;
 use Cti\Core\Module\Project;
+use Cti\Di\Reflection;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 
@@ -43,6 +44,10 @@ class Sencha extends Project implements Bootloader, Warmer
         $source->add($this->project->getPath('src coffee'));
         $source->add($this->project->getPath('build coffee'));
         $source->add($this->project->getPath('resources coffee'));
+
+        foreach($this->getClasses('Direct') as $class) {
+            $this->application->getManager()->getConfiguration()->push('Cti\Direct\Service', 'list', $class);
+        }
     }
 
     /**
@@ -50,7 +55,7 @@ class Sencha extends Project implements Bootloader, Warmer
      */
     protected function getAvailableNamespaces()
     {
-        return array('Coffee', 'Command', 'Generator');
+        return array('Coffee', 'Command', 'Direct', 'Generator');
     }
 
     public function boot(Application $application)
@@ -65,19 +70,26 @@ class Sencha extends Project implements Bootloader, Warmer
         $fs = new Filesystem();
         $schema = $application->getStorage()->getSchema();
 
+        $entities = array();
+        foreach($this->getClasses('Generator') as $class) {
+            $reflection = Reflection::getReflectionClass($class);
+            if(!$reflection->isAbstract()) {
+                $entities[] = $reflection->getShortName();
+            }
+        }
+
         foreach($schema->getModels() as $model) {
+            foreach($entities as $entity) {
+                $generator = $this->application->getManager()->create('Cti\Sencha\Generator\\' . $entity, array(
+                    'model' => $model
+                ));
 
-            $coffeeGenerator = $this->application->getManager()->create('Cti\Sencha\Generator\Model', array(
-                'model' => $model
-            ));
+                $path = $this->application->getProject()->getPath('build coffee Generated ' . $entity . ' ' . $model->getClassName() . '.coffee');
+                $fs->dumpFile($path, $generator->getGeneratedCode());
 
-            $generatedSource = $coffeeGenerator->getGeneratedCode();
-            $path = $this->application->getProject()->getPath('build coffee Model Generated ' . $model->getClassName() . '.coffee');
-            $fs->dumpFile($path, $generatedSource);
-
-            $modelSource = $coffeeGenerator->getModelCode();
-            $path = $this->application->getProject()->getPath('build coffee Model ' . $model->getClassName() . '.coffee');
-            $fs->dumpFile($path, $modelSource);
+                $path = $this->application->getProject()->getPath('build coffee ' . $entity . ' ' . $model->getClassName() . '.coffee');
+                $fs->dumpFile($path, $generator->getFinalCode());
+            }
         }
 
         $finder = new Finder();

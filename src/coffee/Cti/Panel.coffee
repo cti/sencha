@@ -7,7 +7,6 @@ Ext.define 'Cti.Panel'
   initComponent: ->
     @bbar = toolbar = Ext.create 'Ext.toolbar.Toolbar'
     @callParent arguments
-    # toolbar.hide()
 
   setContent: (content) ->
     @removeAll()

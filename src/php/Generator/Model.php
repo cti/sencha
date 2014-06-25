@@ -4,21 +4,8 @@ namespace Cti\Sencha\Generator;
 
 use Cti\Core\String;
 
-class Model
+class Model extends Generator
 {
-    public $model;
-
-    public function getModelCode()
-    {
-        $class = $this->model->getClassName();
-
-        return <<<COFFEE
-# Create file Model/$class.coffee in you project coffee source for override
-Ext.define 'Model.$class',
-  extend: 'Model.Generated.$class'
-COFFEE;
-    }
-
     public function getGeneratedCode()
     {
         $class = $this->model->getClassName();
@@ -35,7 +22,7 @@ COFFEE;
         $fields = json_encode($fields);
 
         return <<<COFFEE
-Ext.define 'Model.Generated.$class',
+Ext.define 'Generated.Model.$class',
 
   extend: 'Ext.data.Model'
   name: $name
