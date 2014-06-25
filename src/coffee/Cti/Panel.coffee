@@ -5,7 +5,6 @@ Ext.define 'Cti.Panel'
   layout: 'fit'
 
   initComponent: ->
-    @bbar = toolbar = Ext.create 'Ext.toolbar.Toolbar'
     @callParent arguments
 
   setContent: (content) ->
@@ -13,7 +12,3 @@ Ext.define 'Cti.Panel'
     @add content
     @doLayout()
 
-  updateToolbar: (toolbar) ->
-    @addDocked toolbar
-    for item in @getDockedItems()
-      @removeDocked item unless item is toolbar 
