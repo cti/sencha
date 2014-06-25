@@ -22,6 +22,8 @@ class Layout
 
 	public $script;
 
+    public $styles = array();
+
 	function display()
 	{
         $this->application->getSencha()->getCoffeeCompiler()->validate($this->script);
@@ -30,6 +32,7 @@ class Layout
         	'direct' => $this->direct,
         	'script' => 'public/js/' . $this->script . '.js',
         	'title' => $this->title,
+            'styles' => $this->styles,
         ));
 
 	}
@@ -45,4 +48,9 @@ class Layout
 		$this->title = $title;
 		return $this;
 	}
+
+    public function setStyles($styles)
+    {
+        $this->styles = $styles;
+    }
 }
