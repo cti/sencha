@@ -117,9 +117,9 @@ Ext.define 'Generated.Form.$class',
     @bbar = @getBottomToolbar()
     @items = []
     config = @getItemsConfig()
-    for k, v in @getItemsList()
-      @items.push config[v]
-    console.log @items
+    for item in @getItemsList()
+      @items.push config[item]
+
     @callParent arguments
 
     if @modelExists()
