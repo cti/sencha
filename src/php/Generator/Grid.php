@@ -60,6 +60,8 @@ Ext.define 'Generated.Grid.$class',
 
   title: '$title'
 
+  token: '/$name/'
+
   store: model: 'Model.$class'
   getAvailableColumns: -> $columns
   getColumnConfiguration: -> $configuration

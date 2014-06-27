@@ -7,6 +7,8 @@ Ext.define 'Cti.Application',
   viewportClass: 'Cti.Viewport'
   defaultClass: 'Cti.Welcome'
 
+  requires: ['Cti.Picker']
+
   constructor: (config) ->
 
     for name, cls of Ext.ClassManager.classes
@@ -38,9 +40,15 @@ Ext.define 'Cti.Application',
       @tokenClasses[token] = cls
       @classTokens[cls] = token
 
+  createInstance: (cls, cfg) ->
+    cfg = cfg || {}
+    if cls != @defaultClass
+      cfg = Ext.applyIf cfg, tools: [id:'close', handler: -> Ext.History.back()]
+    Ext.create cls, cfg
+
   processToken: (token) ->
     if @tokenClasses[token]
-      @panel.setContent Ext.create @tokenClasses[token]
+      @panel.setContent @createInstance @tokenClasses[token]
 
     else
       chain = token.split '/'
@@ -54,9 +62,13 @@ Ext.define 'Cti.Application',
           cfg = {}
           for v,k in dynamic.params
             cfg[v] = chain[k] if k
-          return @panel.setContent Ext.create cls, cfg
+          return @panel.setContent @createInstance cls, cfg
+
+      unless token
+        return @panel.setContent @createInstance @defaultClass
 
       alert 'No token processing: ' + token
+
 
   launch: (cls, cfg) ->
     if @classTokens[cls]
@@ -67,4 +79,4 @@ Ext.define 'Cti.Application',
       chain[k] = v for v, k in @dynamic[cls].basis
       Ext.History.add chain.join '/'
     else
-      @panel.setContent Ext.create cls, cfg
+      @panel.setContent @createInstance cls, cfg

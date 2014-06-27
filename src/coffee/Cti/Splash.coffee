@@ -11,14 +11,14 @@ Ext.define 'Cti.Splash',
   getReconfiguredList: ->
     for item in @list
       unless item.title
-        cls = Ext.ClassManager.get item.cls
-        item.title = cls.prototype.title
+        splashClass = Ext.ClassManager.get item.splashClass
+        item.title = splashClass.prototype.title
     @list
 
   createView: ->
     list = @getReconfiguredList()
     store = Ext.create 'Ext.data.Store',
-      fields: ['title', 'cls', 'icon', 'config']
+      fields: ['title', 'splashClass', 'icon', 'config']
       proxy: 'memory'
     store.loadData list
     @dataView = Ext.create 'Ext.view.View',
@@ -32,9 +32,9 @@ Ext.define 'Cti.Splash',
       store: store
       listeners:
         itemclick: (self, record) =>
-          Cti.launch record.data.cls, (record.data.config or {})
-          @afterItemClick record.data.cls, (record.data.config or {})
+          Cti.launch record.data.splashClass, (record.data.config or {})
+          @afterItemClick record.data.splashClass, (record.data.config or {})
     @dataView
 
-  afterItemClick: (cls, config) ->
+  afterItemClick: (splashClass, config) ->
     true

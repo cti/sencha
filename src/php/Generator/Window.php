@@ -29,6 +29,8 @@ Ext.define 'Generated.Window.$class',
   layout: 'fit'
   getPk: -> $pk_getter
 
+  closeOnEsc: true
+
   title: '$title'
 
   initComponent: ->
