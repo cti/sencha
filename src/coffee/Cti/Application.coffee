@@ -25,6 +25,13 @@ Ext.define 'Cti.Application',
     else if @defaultClass
       @launch @defaultClass
 
+    @keyMap = new Ext.util.KeyMap @viewport.el,
+      key: Ext.event.Event.ESC
+      scope: @
+      fn: -> 
+        current = @panel.items.getAt(0) 
+        current.goBack() if current and Ext.isFunction current.goBack
+
     return @
 
   registerToken: (token, cls) ->
@@ -43,7 +50,8 @@ Ext.define 'Cti.Application',
   createInstance: (cls, cfg) ->
     cfg = cfg || {}
     if cls != @defaultClass
-      cfg = Ext.applyIf cfg, tools: [id:'close', handler: -> Ext.History.back()]
+      cfg = Ext.applyIf cfg, tools: [id:'close', handler: -> @goBack]
+      cfg.goBack = -> Ext.History.back()
     Ext.create cls, cfg
 
   processToken: (token) ->
