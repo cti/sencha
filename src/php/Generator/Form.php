@@ -35,6 +35,8 @@ class Form extends Generator
             }
         }
 
+        $item_list = $behaviours = array();
+
         foreach($this->model->getProperties() as $property) {
             $reference = isset($referenceByField[$property->getName()]) ?
                 $referenceByField[$property->getName()] :
@@ -67,6 +69,11 @@ class Form extends Generator
             if($property->getBehaviour()) {
                 $item['readOnly'] = true;
                 $item['disabled'] = true;
+                if(!in_array($property->getName(), $pk)) {
+                    $behaviours[] = $property->getName();
+                }
+            } else {
+              $item_list[] = $property->getName();
             }
 
             if($property->getJavascriptType() == 'numeric') {
@@ -75,7 +82,7 @@ class Form extends Generator
 
             $items[$property->getName()] = $item;
         }
-        $item_list = json_encode(array_keys($items));
+        $item_list = json_encode(array_merge($pk, $item_list, $behaviours));
         $items = json_encode($items);
 
         $pk_getter = array();

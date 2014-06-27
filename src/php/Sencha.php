@@ -88,20 +88,30 @@ class Sencha extends Project implements Bootloader, Warmer
                 ));
 
                 $path = $this->application->getProject()->getPath('build coffee Generated ' . $entity . ' ' . $model->getClassName() . '.coffee');
-                $fs->dumpFile($path, $generator->getGeneratedCode());
+                $code = $generator->getGeneratedCode();
+                if(!file_exists($path) || md5(file_get_contents($path)) != md5($code)) {
+                    $fs->dumpFile($path, $code);
+                }
 
                 $path = $this->application->getProject()->getPath('build coffee ' . $entity . ' ' . $model->getClassName() . '.coffee');
-                $fs->dumpFile($path, $generator->getFinalCode());
+                $code = $generator->getFinalCode();
+                if(!file_exists($path) || md5(file_get_contents($path)) != md5($code)) {
+                    $fs->dumpFile($path, $code);
+                }
             }
+            echo '- generate '. $model->getClassName() . PHP_EOL;
         }
 
         $finder = new Finder();
+
+        $this->getCoffeeCompiler()->setDebug(true);
 
         $source = $application->getProject()->getPath('resources coffee');
         if(is_dir($source)) {
             $finder->files()->name("*.coffee")->in($source);
             foreach($finder as $file) {
                 $script = substr($file, strlen($source)+1, -7);
+                echo '- processing '. $script .'.coffee' . PHP_EOL;
                 $this->getCoffeeCompiler()->build($script);
             }
         }

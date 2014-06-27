@@ -39,6 +39,8 @@ class Compiler
      */
     protected $cache;
 
+    protected $debug = false;
+
     public $stats = array();
 
     public function init()
@@ -83,10 +85,13 @@ class Compiler
             $sourceList[] = $coffee;
 
             $local = $this->source->getLocalPath($coffee);
-            $local = dirname($local) . DIRECTORY_SEPARATOR . basename($local, 'coffee') .'js';
-            $javascript = $this->project->getPath(sprintf('build js %s', $local));
+            $local_js = dirname($local) . DIRECTORY_SEPARATOR . basename($local, 'coffee') .'js';
+            $javascript = $this->project->getPath(sprintf('build js %s', $local_js));
 
             if(!file_exists($javascript) || filemtime($coffee) >= filemtime($javascript)) {
+                if($this->debug) {
+                    echo '- compile '. $local . PHP_EOL;
+                }
                 $code = \CoffeeScript\Compiler::compile(file_get_contents($coffee), array(
                     'filename' => $coffee,
                     'bare' => true,
@@ -108,5 +113,10 @@ class Compiler
         $fs->dumpFile($filename, $result);
 
         return $filename;
+    }
+
+    public function setDebug($debug) 
+    {
+        $this->debug = $debug;
     }
 }
