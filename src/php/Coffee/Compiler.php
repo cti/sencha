@@ -4,8 +4,10 @@ namespace Cti\Sencha\Coffee;
 
 use Cti\Core\Module\Cache;
 use Cti\Core\Module\Project;
+use Cti\Core\String;
 use Cti\Sencha\Sencha;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Stopwatch\Stopwatch;
 
 class Compiler 
 {
@@ -80,6 +82,8 @@ class Compiler
 
         $sourceList = array();
 
+        $stopwatch = new Stopwatch();
+
         foreach(array_reverse($dependencies) as $coffee) {
 
             $sourceList[] = $coffee;
@@ -90,13 +94,19 @@ class Compiler
 
             if(!file_exists($javascript) || filemtime($coffee) >= filemtime($javascript)) {
                 if($this->debug) {
-                    echo '- compile '. $local . PHP_EOL;
+                    $stopwatch->start($local);
+                    echo '- compile '. $local ;
                 }
                 $code = \CoffeeScript\Compiler::compile(file_get_contents($coffee), array(
                     'filename' => $coffee,
                     'bare' => true,
                     'header' => false
                 ));
+                if($this->debug) {
+                    $event = $stopwatch->stop($local);
+                    echo ' ('. String::formatMilliseconds($event->getDuration()) . ' using ' 
+                             . String::formatBytes($event->getMemory()) . ')' . PHP_EOL;
+                }
                 $fs->dumpFile($javascript, $code);
 
             } else {
