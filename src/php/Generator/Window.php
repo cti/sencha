@@ -25,11 +25,9 @@ Ext.define 'Generated.Window.$class',
   modal: true
   draggable: false
   resizable: false
-  closable: false
+  closable: true
   layout: 'fit'
   getPk: -> $pk_getter
-
-  closeOnEsc: true
 
   title: '$title'
 
