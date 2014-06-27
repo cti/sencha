@@ -73,8 +73,9 @@ class Form extends Generator
               $item['xtype'] = 'numberfield';
             } 
 
-            $items[] = $item;
+            $items[$property->getName()] = $item;
         }
+        $item_list = json_encode(array_keys($items));
         $items = json_encode($items);
 
         $pk_getter = array();
@@ -82,6 +83,7 @@ class Form extends Generator
           $pk_getter[] = $key . ": @" . $key ;
         }
         $pk_getter = implode(', ', $pk_getter);
+
 
 
         return <<<COFFEE
@@ -96,6 +98,7 @@ Ext.define 'Generated.Form.$class',
   getPk: -> $pk_getter
 
   getItemsConfig: -> $items
+  getItemsList: -> $item_list
 
   getBottomToolbar: ->
     [
@@ -112,7 +115,11 @@ Ext.define 'Generated.Form.$class',
 
   initComponent: ->
     @bbar = @getBottomToolbar()
-    @items = @getItemsConfig()
+    @items = []
+    config = @getItemsConfig()
+    for k, v in @getItemsList()
+      @items.push config[v]
+    console.log @items
     @callParent arguments
 
     if @modelExists()
