@@ -28,6 +28,9 @@ Ext.define 'Cti.Picker',
     @setLoadingState true
     @directFn @model, (records) =>
       @store.loadData records.data
+      if @getValue()
+        @setValue @getValue()
+        @validate()
 
   validator: (value) ->
     return true if value is "" and @allowBlank is true
