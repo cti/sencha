@@ -82,7 +82,7 @@ class Form extends Generator
 
             $items[$property->getName()] = $item;
         }
-        $item_list = json_encode(array_merge($pk, $item_list, $behaviours));
+        $item_list = json_encode(array_merge($item_list, $pk, $behaviours));
         $items = json_encode($items);
 
         $pk_getter = array();
