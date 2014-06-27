@@ -73,7 +73,7 @@ class Sencha extends Project implements Bootloader, Warmer
         $entities = array();
         foreach($this->getClasses('Generator') as $class) {
             $reflection = Reflection::getReflectionClass($class);
-            if(!$reflection->isAbstract()) {
+            if(!$reflection->isAbstract() && $reflection->isSubclassOf('Cti\\Sencha\\Generator\\Generator')) {
                 $entities[] = $reflection->getShortName();
             }
         }
@@ -101,6 +101,23 @@ class Sencha extends Project implements Bootloader, Warmer
             }
             echo '- generate '. $model->getClassName() . PHP_EOL;
         }
+
+        $generator = $this->application->getManager()->create('Cti\Sencha\Generator\\Master', array(
+            'model' => $model
+        ));
+
+        $path = $this->application->getProject()->getPath('build coffee Generated Master.coffee');
+        $code = $generator->getGeneratedCode();
+        if(!file_exists($path) || md5(file_get_contents($path)) != md5($code)) {
+            $fs->dumpFile($path, $code);
+        }
+
+        $path = $this->application->getProject()->getPath('build coffee Master.coffee');
+        $code = $generator->getFinalCode();
+        if(!file_exists($path) || md5(file_get_contents($path)) != md5($code)) {
+            $fs->dumpFile($path, $code);
+        }
+
 
         $finder = new Finder();
 
