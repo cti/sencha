@@ -32,11 +32,19 @@ Ext.define 'Generated.Window.$class',
   title: '$title'
 
   initComponent: ->
-    @items = [Ext.create 'Form.$class', @getPk()]
+    form = Ext.create 'Form.$class', @getPk()
+    @items = @getTabConfig form
     @callParent arguments
     @show()
 
     @on 'close', => @grid.loadData()
+
+  getTabConfig: (form) ->
+    xtype: 'tabpanel'
+    items: [
+      title: 'Форма'
+      items: [form]
+    ]
 COFFEE;
 
     }

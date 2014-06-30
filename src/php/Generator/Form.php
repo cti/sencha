@@ -130,7 +130,10 @@ Ext.define 'Generated.Form.$class',
     @callParent arguments
 
     if @modelExists()
-      Storage.getModel '$name', @getPk(), (response) => @getForm().loadRecord Ext.create 'Model.$class', response.data
+      Storage.getModel '$name', @getPk(), (response) =>
+        model = Ext.create 'Model.$class', response.data
+        @getForm().loadRecord model
+        @fireEvent 'recordloaded', model
 COFFEE;
 
     }

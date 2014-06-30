@@ -79,10 +79,10 @@ class Sencha extends Project implements Bootloader, Warmer
         }
 
         foreach($schema->getModels() as $model) {
-            if($model->hasBehaviour('link')) {
-                continue;
-            }
             foreach($entities as $entity) {
+                if($model->hasBehaviour('link') && $entity != 'Model') {
+                    continue;
+                }
                 $generator = $this->application->getManager()->create('Cti\Sencha\Generator\\' . $entity, array(
                     'model' => $model
                 ));
