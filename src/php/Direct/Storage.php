@@ -38,7 +38,7 @@ class Storage
     function save(Master $master, $model, $pk, $data)
     {
         $pk = get_object_vars($pk);
-        $data = get_object_vars($data);
+        $data = get_object_vars($data->$model);
         $repository = $master->getRepository($model);
         if(count($pk)) {
             $model = $repository->findByPk($pk);

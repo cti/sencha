@@ -107,21 +107,9 @@ Ext.define 'Generated.Form.$class',
   getItemsConfig: -> $items
   getItemsList: -> $item_list
 
-  getBottomToolbar: ->
-    [
-      text:'Save'
-      handler: => 
-        pk = if @modelExists() then @getPk() else {}
-        Storage.save '$name', pk, @getForm().getValues(), (response) => @up('window').close() if response.success
-      '->'
-      text:'Close'
-      handler: => @up('window').close()
-    ]
-
   modelExists: -> !Ext.Array.contains(Ext.Object.getValues(@getPk()), undefined)
 
   initComponent: ->
-    @bbar = @getBottomToolbar()
     @items = []
     config = @getItemsConfig()
     for item in @getItemsList()

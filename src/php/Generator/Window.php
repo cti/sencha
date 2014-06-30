@@ -12,6 +12,8 @@ class Window extends Generator
 
         $title = $this->model->getComment();
 
+        $name = $this->model->getName();
+
         $pk_getter = array();
         foreach($this->model->getPk() as $key) {
           $pk_getter[] = $key . ": @" . $key ;
@@ -32,6 +34,7 @@ Ext.define 'Generated.Window.$class',
   title: '$title'
 
   initComponent: ->
+    @bbar = @getBottomToolbar()
     form = Ext.create 'Form.$class', @getPk()
     @items = @getTabConfig form
     @callParent arguments
@@ -45,6 +48,19 @@ Ext.define 'Generated.Window.$class',
       title: 'Форма'
       items: [form]
     ]
+
+  getBottomToolbar: ->
+    [
+      text:'Save'
+      handler: =>
+        form = @down 'form'
+        pk = if form.modelExists() then form.getPk() else {}
+        Storage.save '$name', pk, form.getForm().getValues(), (response) => @close() if response.success
+      '->'
+      text:'Close'
+      handler: => @close()
+    ]
+
 COFFEE;
 
     }
