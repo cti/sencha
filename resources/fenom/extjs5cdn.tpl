@@ -4,7 +4,7 @@
         <title>{$title}</title>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
         <base href="{$base}"/>
-        <link rel="stylesheet" type="text/css" href="http://cdn.sencha.com/ext/beta/ext-5.0.0.736/build/packages/ext-theme-neptune/build/resources/ext-theme-neptune-all.css">
+        <link rel="stylesheet" type="text/css" href="http://cdn.sencha.com/ext/beta/ext-5.0.0.736/build/packages/ext-theme-crisp/build/resources/ext-theme-crisp-all.css">
 {foreach $styles as $style}
         <link rel="stylesheet" type="text/css" href="{$style}">
 {/foreach}
