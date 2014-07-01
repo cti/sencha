@@ -28,7 +28,7 @@ Ext.define 'Generated.Editor.$className',
   extend: 'Ext.grid.Panel'
   requires: ['Model.$className']
   height: 250
-  width: 250
+  width: 350
   initComponent: ->
     @cellEditing = new Ext.grid.plugin.CellEditing
       clicksToEdit: 1
@@ -41,7 +41,7 @@ Ext.define 'Generated.Editor.$className',
 
 $masterDataStoresConfig
 $loadStoresCode
-$columnsDefinition
+    @columns = @getColumnsConfiguration()
 
     @tbar = [
       text: 'Добавить'
@@ -60,6 +60,10 @@ $addHandlerCode
     @record = record
 $conditionDefinition
     Storage.filter '$name', condition, (response) => @store.loadData response.data
+
+  getColumnsConfiguration: ->
+$columnsDefinition
+
 
 
 COFFEE;
@@ -94,6 +98,19 @@ COFFEE;
 
     public function getColumnsDefinition()
     {
+        /**
+         * When we create editor in window, we need to disable some of column editors
+         */
+        $removeColumnsEditorFillCode = array();
+        foreach($this->model->getOutReferences() as $reference) {
+            $model = $this->schema->getModel($reference->getDestination());
+            $removeColumnsEditorFillCode[] = "if owner instanceof Window." . $model->getClassName() . "
+      removeColumnsEditor.push 'id_" . $model->getName() . "'
+";
+        }
+        $removeColumnsEditorFillCode = implode("    else ", $removeColumnsEditorFillCode);
+
+
         $columnsCode = array();
         foreach($this->model->getOutReferences() as $reference) {
             $model = $this->schema->getModel($reference->getDestination());
@@ -109,7 +126,17 @@ COFFEE;
         record = @masterDataStores.$name.findRecord 'id_$name', v
         if record then record.data.name else ''";
         }
-        $code = "    @columns = [\n" . implode("\n    ,\n", $columnsCode) . "\n    ]\n";
+        $code = "    columns = [\n" . implode("\n    ,\n", $columnsCode) . "
+    ]
+
+    owner = @parentWindow
+    removeColumnsEditor = []
+    $removeColumnsEditorFillCode
+    for column in columns
+        delete column.editor if Ext.Array.indexOf(removeColumnsEditor, column.dataIndex) isnt -1
+    columns
+
+";
         return $code;
     }
 

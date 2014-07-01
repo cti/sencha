@@ -23,7 +23,6 @@ class Window extends Generator
         $getDataCode = $this->getDataCode();
         $recordLoadedCode = $this->getRecordLoadedCode();
         $tabConfigModifyCode = $this->getTabConfigModifyCode();
-        $requires = $this->getRequires();
 
         return <<<COFFEE
 Ext.define 'Generated.Window.$class',
@@ -118,7 +117,7 @@ COFFEE;
       title: '" . $link->getComment() . "'
       name: '" . $link->getName() . "_tab'
       items: [
-        Ext.create 'Editor." . $link->getClassName() . "'
+        Ext.create 'Editor." . $link->getClassName() . "', parentWindow: this
       ]
 ";
         }
