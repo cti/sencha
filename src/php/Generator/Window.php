@@ -6,6 +6,11 @@ use Cti\Core\String;
 
 class Window extends Generator
 {
+    /**
+     * @var \Cti\Storage\Schema
+     */
+    public $schema;
+
     public function getGeneratedCode()
     {
         $class = $this->model->getClassName();
@@ -113,8 +118,15 @@ COFFEE;
     {
         $code = "";
         foreach($this->model->getLinks() as $link) {
+            $tabName = $link->getComment();
+            foreach($link->getOutReferences() as $reference) {
+                if ($reference->getDestination() != $this->model->getName()) {
+                    $tabName = $this->schema->getModel($reference->getDestination())->getComment();
+                }
+            }
+
             $code .= "    config.items.push
-      title: '" . $link->getComment() . "'
+      title: '$tabName'
       name: '" . $link->getName() . "_tab'
       items: [
         Ext.create 'Editor." . $link->getClassName() . "', parentWindow: this
