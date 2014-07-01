@@ -80,11 +80,12 @@ class Sencha extends Project implements Bootloader, Warmer
 
         foreach($schema->getModels() as $model) {
             foreach($entities as $entity) {
-                if($model->hasBehaviour('link') && $entity != 'Model') {
+                if(($model->hasBehaviour('link') && $entity != 'Model' && $entity != 'Editor') || (!$model->hasBehaviour('link') && $entity == 'Editor')) {
                     continue;
                 }
                 $generator = $this->application->getManager()->create('Cti\Sencha\Generator\\' . $entity, array(
-                    'model' => $model
+                    'model' => $model,
+                    'schema' => $schema,
                 ));
 
                 $path = $this->application->getProject()->getPath('build coffee Generated ' . $entity . ' ' . $model->getClassName() . '.coffee');
