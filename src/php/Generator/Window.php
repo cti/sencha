@@ -39,6 +39,7 @@ Ext.define 'Generated.Window.$class',
   closable: true
   layout: 'fit'
   getPk: -> $pk_getter
+  width: 350
 
   title: '$title'
 
@@ -51,6 +52,7 @@ Ext.define 'Generated.Window.$class',
 
     @on 'close', => @grid.loadData()
 $recordLoadedCode
+    @setWidth 500 if (@down 'tabpanel').items.items.length > 2
 
 
   getTabConfig: (form) ->
@@ -112,8 +114,8 @@ COFFEE;
       tab.items.each (item) ->
         item.initByRecord record
 ";
-        return $code;
         }
+        return $code;
     }
 
     public function getTabConfigModifyCode()

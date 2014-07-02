@@ -28,7 +28,6 @@ Ext.define 'Generated.Editor.$className',
   extend: 'Ext.grid.Panel'
   requires: ['Model.$className']
   height: 250
-  width: 350
   initComponent: ->
     @cellEditing = new Ext.grid.plugin.CellEditing
       clicksToEdit: 1
@@ -45,21 +44,30 @@ $loadStoresCode
 
     @tbar = [
       text: 'Добавить'
+      name: 'add'
+      disabled: true
       handler: =>
 $addHandlerCode
     ,
       text: 'Удалить'
+      name: 'delete'
+      disabled: true
       handler: =>
         selected = @getSelection()[0]
         return unless selected
         @store.remove selected
     ]
     @callParent arguments
+    @on 'selectionchange', (self, selection) =>
+      (@down '[name=delete]').setDisabled !!selection.length
+
 
   initByRecord: (record) ->
     @record = record
 $conditionDefinition
-    Storage.filter '$name', condition, (response) => @store.loadData response.data
+    Storage.filter '$name', condition, (response) =>
+        @store.loadData response.data
+        (@down '[name=add]').enable()
 
   getColumnsConfiguration: ->
 $columnsDefinition
@@ -110,13 +118,15 @@ COFFEE;
         }
         $removeColumnsEditorFillCode = implode("    else ", $removeColumnsEditorFillCode);
 
-
+        $createdColumns = array();
         $columnsCode = array();
         foreach($this->model->getOutReferences() as $reference) {
             $model = $this->schema->getModel($reference->getDestination());
             $name = $model->getName();
+            $createdColumns[] = 'id_' . $name;
             $columnsCode[] = "      header: '" . $model->getComment() . "'
       dataIndex: 'id_$name'
+      flex: 2
       editor: new Ext.form.field.ComboBox
         store: @masterDataStores.$name
         valueField: 'id_$name'
@@ -125,6 +135,27 @@ COFFEE;
       renderer: (v) =>
         record = @masterDataStores.$name.findRecord 'id_$name', v
         if record then record.data.name else ''";
+        }
+        foreach($this->model->getProperties() as $property) {
+            if ($property->getBehaviour('log')) {
+                continue;
+            }
+            $xtype = 'textfield';
+            switch ($property->getType()) {
+                case 'integer':
+                    $xtype = 'numberfield';
+                    break;
+            }
+            if (!in_array($property->getName(), $createdColumns)) {
+                $columnsCode[] = "
+      header: '" . $property->getComment() . "'
+      flex: 1
+      dataIndex: '" . $property->getName() . "'
+      editor:
+        xtype: '$xtype'
+        allowBlank: " . ($property->getRequired() ? "false" : "true") . "
+                ";
+            }
         }
         $code = "    columns = [\n" . implode("\n    ,\n", $columnsCode) . "
     ]
