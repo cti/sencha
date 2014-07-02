@@ -95,7 +95,9 @@ COFFEE;
         }
         foreach($this->model->getLinks() as $link) {
             $code .= "    for record in @down('[name=" . $link->getName() . "_tab]').down('grid').store.getRange()
-      data." . $link->getName() . ".push record.data
+      recordData = Ext.clone record.data
+      delete recordData.null
+      data." . $link->getName() . ".push recordData
 ";
         }
         $code .= "    data\n";

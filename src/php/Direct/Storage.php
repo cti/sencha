@@ -2,6 +2,7 @@
 
 namespace Cti\Sencha\Direct;
 
+use Cti\Storage\Schema;
 use Storage\Master;
 
 class Storage
@@ -46,7 +47,7 @@ class Storage
         );
     }
 
-    function save(Master $master, $model, $pk, $data)
+    function save(Schema $schema, Master $master, $model, $pk, $data)
     {
         $pk = get_object_vars($pk);
         $modelData = get_object_vars($data->$model);
@@ -60,7 +61,7 @@ class Storage
         }
         $model->save();
 
-        $this->saveLinks($master, $model, $pk, $data);
+        $this->saveLinks($schema, $master, $model, $pk, $data);
 
         $master->getDatabase()->commit();
         return array(
@@ -68,20 +69,46 @@ class Storage
         );
     }
 
-    protected function saveLinks(Master $master, $model, $pk, $data)
+    protected function saveLinks(Schema $schema, Master $master, $model, $pk, $data)
     {
-        // @todo No remove implemented
-        foreach(get_object_vars($data) as $key => $links) {
-            $repository = $master->getRepository($key);
-            foreach($links as $linkData) {
-                $link = $repository->findByPk((array)$linkData);
-                if ($link) {
-                    $link->merge($linkData);
-                } else {
-                    $link = $repository->create($linkData);
-                }
-                $link->save();
+        $data = get_object_vars($data);
+        unset($pk['v_end']);
+        $makeKey = function ($fields, $data) {
+            $items = array();
+            foreach($fields as $field) {
+                $items[] = $data[$field];
             }
+            return implode(':', $items);
+        };
+        foreach($data as $linkName => $records) {
+            $linkPk = $schema->getModel($linkName)->getPk();
+            unset($linkPk[array_search('v_end', $linkPk)]);
+
+            $repository = $master->getRepository($linkName);
+            $existingLinks = $repository->findAll($pk);
+            $hash = array();
+            foreach($existingLinks as $existingLink) {
+                $key = $makeKey($linkPk, $existingLink->asArray());
+                $hash[$key] = $existingLink;
+            }
+
+            foreach($records as $record) {
+                $record = get_object_vars($record);
+                $key = $makeKey($linkPk, $record);
+                if (isset($hash[$key])) {
+                    $existingLink = $hash[$key];
+                    $existingLink->merge($record);
+                    unset($hash[$key]);
+                } else {
+                    $existingLink = $repository->create($record);
+                }
+                $existingLink->save();
+            }
+
+            foreach($hash as $key => $record) {
+                $record->delete();
+            }
+
         }
     }
-}
+};
