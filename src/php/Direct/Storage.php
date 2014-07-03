@@ -47,12 +47,12 @@ class Storage
         );
     }
 
-    function save(Schema $schema, Master $master, $model, $pk, $data)
+    function save(Schema $schema, Master $master, $modelName, $pk, $data)
     {
         $pk = get_object_vars($pk);
-        $modelData = get_object_vars($data->$model);
-        unset($data->$model);
-        $repository = $master->getRepository($model);
+        $modelData = get_object_vars($data->$modelName);
+        unset($data->$modelName);
+        $repository = $master->getRepository($modelName);
         if(count($pk)) {
             $model = $repository->findByPk($pk);
             $model->merge($modelData);
@@ -61,7 +61,7 @@ class Storage
         }
         $model->save();
 
-        $this->saveLinks($schema, $master, $model, $pk, $data);
+        $this->saveLinks($schema, $master, $modelName, $pk, $data);
 
         $master->getDatabase()->commit();
         return array(
@@ -80,12 +80,29 @@ class Storage
             }
             return implode(':', $items);
         };
+
+        $convertPkForModel = function ($linkName, $pk) use ($schema, $model) {
+            $linkModel = $schema->getModel($linkName);
+            $parentModel = $schema->getModel($model);
+            $reference = $linkModel->getOutReference($parentModel->getName());
+            $properties = $reference->getProperties();
+            foreach($properties as $property) {
+                foreach($pk as $key => $value) {
+                    if ($key == $property->getForeignName()) {
+                        unset($pk[$key]);
+                        $pk[$property->getName()] = $value;
+                    }
+                }
+            }
+            return $pk;
+        };
+
         foreach($data as $linkName => $records) {
             $linkPk = $schema->getModel($linkName)->getPk();
             unset($linkPk[array_search('v_end', $linkPk)]);
 
             $repository = $master->getRepository($linkName);
-            $existingLinks = $repository->findAll($pk);
+            $existingLinks = $repository->findAll($convertPkForModel($linkName, $pk));
             $hash = array();
             foreach($existingLinks as $existingLink) {
                 $key = $makeKey($linkPk, $existingLink->asArray());

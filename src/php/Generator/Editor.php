@@ -123,13 +123,15 @@ COFFEE;
         foreach($this->model->getOutReferences() as $reference) {
             $model = $this->schema->getModel($reference->getDestination());
             $name = $model->getName();
+            $properties = $reference->getProperties();
+            $property = array_shift($properties);
             $createdColumns[] = 'id_' . $name;
             $columnsCode[] = "      header: '" . $model->getComment() . "'
-      dataIndex: 'id_$name'
+      dataIndex: '" . $property->getName() . "'
       flex: 2
       editor: new Ext.form.field.ComboBox
         store: @masterDataStores.$name
-        valueField: 'id_$name'
+        valueField: '" . $property->getName() . "'
         displayField: 'name'
         queryMode: 'local'
       renderer: (v) =>
@@ -205,14 +207,21 @@ COFFEE;
          * @var \Cti\Storage\Component\Model[] $referencesModels
          */
         $referencesModels = array();
+        $referenceProperties = array();
         $referencesModels[] = $this->schema->getModel($references[0]->getDestination());
+        $referenceProperties[] = $references[0]->getProperties();
         $referencesModels[] = $this->schema->getModel($references[1]->getDestination());
+        $referenceProperties[] = $references[1]->getProperties();
+
+        $referenceProperties[0] = array_shift($referenceProperties[0]);
+        $referenceProperties[1] = array_shift($referenceProperties[1]);
+
         return "    if @record instanceof Model." . $referencesModels[0]->getClassName() . "
       condition =
-        id_" . $referencesModels[0]->getName() . ": record.data.id_" . $referencesModels[0]->getName() . "
+        " . $referenceProperties[0]->getName() . ": record.data.id_" . $referencesModels[0]->getName() . "
     else if @record instanceof Model." . $referencesModels[1]->getClassName() . "
       condition =
-        id_" . $referencesModels[1]->getName() . ": record.data.id_" . $referencesModels[1]->getName() . "
+        " . $referenceProperties[1]->getName() . ": record.data.id_" . $referencesModels[1]->getName() . "
 ";
     }
 } 
