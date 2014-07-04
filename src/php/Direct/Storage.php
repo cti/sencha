@@ -7,6 +7,12 @@ use Storage\Master;
 
 class Storage
 {
+    /**
+     * @inject
+     * @var \Cti\Storage\Schema
+     */
+    protected $schema;
+
     function getList($model, Master $master)
     {
         $data = array();
@@ -47,7 +53,7 @@ class Storage
         );
     }
 
-    function save(Schema $schema, Master $master, $modelName, $pk, $data)
+    function save(Master $master, $modelName, $pk, $data)
     {
         $pk = get_object_vars($pk);
         $modelData = get_object_vars($data->$modelName);
@@ -61,7 +67,7 @@ class Storage
         }
         $model->save();
 
-        $this->saveLinks($schema, $master, $modelName, $pk, $data);
+        $this->saveLinks($master, $modelName, $pk, $data);
 
         $master->getDatabase()->commit();
         return array(
@@ -69,8 +75,9 @@ class Storage
         );
     }
 
-    protected function saveLinks(Schema $schema, Master $master, $model, $pk, $data)
+    protected function saveLinks(Master $master, $model, $pk, $data)
     {
+        $schema = $this->schema;
         $data = get_object_vars($data);
         unset($pk['v_end']);
         $makeKey = function ($fields, $data) {

@@ -68,14 +68,22 @@ $tabConfigModifyCode
   getBottomToolbar: ->
     [
       text:'Save'
-      handler: =>
-        form = @down 'form'
-        pk = if form.modelExists() then form.getPk() else {}
-        Storage.save '$name', pk, @getData(), (response) => @close() if response.success
+      handler: @saveHandler
+    ,
       '->'
+    ,
       text:'Close'
       handler: => @close()
     ]
+
+  saveHandler: ->
+    win = @up 'window'
+    form = win.down 'form'
+    pk = if form.modelExists() then form.getPk() else {}
+    saveMethod = win.getSaveMethod()
+    saveMethod 'person', pk, win.getData(), (response) => win.close() if response.success
+
+  saveMethod: Storage.save
 
 $getDataCode
 
